@@ -23,14 +23,15 @@ class RoleRepository implements RoleRepositoryInterface
         $role->save();
     }
 
-    public function update(Role $role)
+    public function update( $id,array $data)
     {
-        $role->update();
+        $role = Role::findOrFail($id);
+        $role->update($data);
     }
 
     public function delete($id)
     {
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
         $role->delete();
     }
 }

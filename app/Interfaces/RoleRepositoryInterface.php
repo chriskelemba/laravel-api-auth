@@ -12,7 +12,7 @@ interface RoleRepositoryInterface
 
     public function store(Role $role);
 
-    public function update(Role $role);
+    public function update($id,array $data);
 
     public function delete($id);
 }
