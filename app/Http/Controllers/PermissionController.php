@@ -36,14 +36,14 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = $this->getPermissionService->getAll();
-        return ApiResponseClass::sendResponse(PermissionResource::collection($permissions), 'Permissions fetched successfully', 200);
+        return ApiResponseClass::sendResponse(['permissions' => PermissionResource::collection($permissions)], 'Permissions fetched successfully', 200);
     }
 
     // get permission
     public function show($id)
     {
         $permission = $this->getPermissionService->execute($id);
-        return ApiResponseClass::sendResponse(new PermissionResource($permission), 'Permission fetched successfully', 200);
+        return ApiResponseClass::sendResponse(['permission' => new PermissionResource($permission)], 'Permission fetched successfully', 200);
     }
 
     // post role
