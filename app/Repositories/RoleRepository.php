@@ -34,4 +34,19 @@ class RoleRepository implements RoleRepositoryInterface
         $role = Role::findOrFail($id);
         $role->delete();
     }
+
+    public function syncPermissionToRole($roleId,array $permissions)
+    {
+        $role = Role::findOrFail($roleId);
+        $role->syncPermissions($permissions);
+
+        $role->load('permissions');
+
+        return $role;
+    }
+
+    public function getRolePermissions($roleId)
+    {
+        return Role::find($roleId)->permissions;
+    }
 }
