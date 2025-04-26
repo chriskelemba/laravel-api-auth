@@ -13,6 +13,8 @@ Route::get('/user', function (Request $request) {
 
 // roles api
 Route::apiResource('/roles',RoleController::class);
+
+// role permission api
 Route::get('/roles/{roleId}/permissions', [RoleController::class, 'getRolePermissions']);
 Route::post('/roles/{roleId}/give-permissions', [RoleController::class, 'syncPermissionToRole']);
 

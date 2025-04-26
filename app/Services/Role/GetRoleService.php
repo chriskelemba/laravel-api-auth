@@ -2,6 +2,7 @@
 
 namespace App\Services\Role;
 
+use App\Exceptions\Custom\NotFoundException;
 use App\Interfaces\RoleRepositoryInterface;
 use Spatie\Permission\Models\Role;
 
@@ -19,6 +20,10 @@ class GetRoleService
     {
         $role = Role::find($id);
 
+        if (!$role) {
+            throw new NotFoundException('Role not found.');
+        }
+
         $this->roleRepository->show($role);
 
         return $role;
@@ -28,6 +33,10 @@ class GetRoleService
     {
         $roles = Role::all();
 
+        if ($roles->isEmpty()) {
+            throw new NotFoundException('No roles found.');
+        }
+        
         $this->roleRepository->index();
 
         return $roles;

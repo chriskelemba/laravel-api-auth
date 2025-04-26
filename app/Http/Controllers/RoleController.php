@@ -76,7 +76,7 @@ class RoleController extends Controller
     {
         $permissions = $request->permissions;
         $syncedPermissions = $this->syncRolePermissionService->execute($roleId, $permissions);
-        return ApiResponseClass::sendResponse(['role' => new RoleResource($syncedPermissions)], 'Permissions synced successfully', 200);
+        return ApiResponseClass::sendResponse(['role' => new RolePermissionResource($syncedPermissions)], 'Permissions synced successfully', 200);
     }
 
     // get role permissions
