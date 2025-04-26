@@ -22,7 +22,7 @@ class UpdateRoleService
     {
         $this->roleRepository->update($id, $data);
 
-        return Role::findOrFail($id); // return updated role
+        return Role::findOrFail($id);
     }
 
 }
