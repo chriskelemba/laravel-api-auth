@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Class\ApiResponseClass;
-use App\Interfaces\UserRepositoryInterface;
+use App\Interfaces\AuthRepositoryInterface;
 
 class AuthController extends Controller
 {
-    private UserRepositoryInterface $userRepositoryInterface;
+    private AuthRepositoryInterface $authRepository;
 
-    public function __construct(UserRepositoryInterface $userRepositoryInterface)
+    public function __construct(AuthRepositoryInterface $authRepository)
     {
-        $this->userRepositoryInterface = $userRepositoryInterface;
+        $this->authRepository = $authRepository;
     }
 
     public function login(Request $request)
@@ -23,7 +23,7 @@ class AuthController extends Controller
         ];
 
         try {
-            $user = $this->userRepositoryInterface->login($credentials);
+            $user = $this->authRepository->login($credentials);
 
             if (!$user) {
                 return ApiResponseClass::sendResponse('Unauthorized', 'Invalid credentials', 401);
@@ -35,10 +35,25 @@ class AuthController extends Controller
         }
     }
 
-    // public function logout()
-    // {
-    //     auth()->logout();
+    public function register(Request $request)
+    {
+        try {
+            $data = $request->only(['name', 'email', 'password']);
+            $user = $this->authRepository->register($data);
 
-    //     return ApiResponseClass::sendResponse('Logout Successful', '', 200);
-    // }
+            return ApiResponseClass::sendResponse($user, 'Registration Successful', 201);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
+    }
+
+    public function logout()
+    {
+        try {
+            $this->authRepository->logout();
+            return ApiResponseClass::sendResponse('Logout Successful', '', 200);
+        } catch (\Exception $ex) {
+            return ApiResponseClass::rollback($ex);
+        }
+    }
 }
