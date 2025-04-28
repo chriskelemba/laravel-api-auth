@@ -6,12 +6,8 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginService
 {
-    public function handle(array $credentials)
+    public function execute(array $credentials)
     {
-        if (Auth::attempt($credentials)) {
-            return Auth::user();
-        }
-
-        return null;
+        return Auth::attempt($credentials) ? Auth::user() : null;
     }
 }
