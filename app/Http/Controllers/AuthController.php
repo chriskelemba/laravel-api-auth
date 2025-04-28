@@ -2,28 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Class\ApiResponseClass;
-use App\Interfaces\AuthRepositoryInterface;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Services\Auth\LoginService;
+use App\Services\Auth\LogoutService;
+use App\Services\Auth\RegisterService;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
-    private AuthRepositoryInterface $authRepository;
+    private $loginService;
+    private $registerService;
+    private $logoutService;
 
-    public function __construct(AuthRepositoryInterface $authRepository)
+    public function __construct(LoginService $loginService, RegisterService $registerService, LogoutService $logoutService)
     {
-        $this->authRepository = $authRepository;
+        $this->loginService = $loginService;
+        $this->registerService = $registerService;
+        $this->logoutService = $logoutService;
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password
-        ];
-
         try {
-            $user = $this->authRepository->login($credentials);
+            $user = $this->loginService->handle($request->only(['email', 'password']));
 
             if (!$user) {
                 return ApiResponseClass::sendResponse('Unauthorized', 'Invalid credentials', 401);
@@ -35,11 +38,10 @@ class AuthController extends Controller
         }
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         try {
-            $data = $request->only(['name', 'email', 'password']);
-            $user = $this->authRepository->register($data);
+            $user = $this->registerService->handle($request->only(['name', 'email', 'password']));
 
             return ApiResponseClass::sendResponse($user, 'Registration Successful', 201);
         } catch (\Exception $ex) {
@@ -50,7 +52,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            $this->authRepository->logout();
+            $this->logoutService->handle();
             return ApiResponseClass::sendResponse('Logout Successful', '', 200);
         } catch (\Exception $ex) {
             return ApiResponseClass::rollback($ex);
