@@ -2,10 +2,12 @@
 
 namespace App\Services\Auth;
 
+use Illuminate\Support\Facades\Auth;
+
 class LogoutService
 {
-    public function handle(array $data)
+    public function execute()
     {
-        //
+        Auth::logout();
     }
 }
