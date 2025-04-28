@@ -7,7 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request; // Add this import
 use App\Exceptions\Custom\BaseCustomException; // Import your base exception class
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+// use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
