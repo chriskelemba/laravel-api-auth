@@ -9,12 +9,34 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthRepository implements AuthRepositoryInterface
 {
+    public function generateToken(User $user)
+    {
+        $tokenResult = $user->createToken('auth_token', ['*']);
+
+        $token = $tokenResult->plainTextToken;
+
+        $tokenModel = $user->tokens()->latest()->first();
+
+        $tokenModel->forceFill([
+            'last_used_at' => now(),
+            'expires_at' => now()->addDays(30),
+        ])->save();
+
+        return $token; 
+    }
+
     public function register(array $data)
     {
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
         Auth::login($user);
-        return $user;
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return [
+            'user' => $user,
+            'token' => $token
+        ];
     }
 
     public function login(array $credentials)
@@ -22,12 +44,24 @@ class AuthRepository implements AuthRepositoryInterface
         if (Auth::attempt($credentials)) {
             return Auth::user();
         }
+
         return false;
     }
 
+
     public function logout()
-    {
-        Auth::logout();
-        return true;
+{
+    $user = Auth::user();
+
+    // If the user has an active token, update its last_used_at field
+    if ($user && $user->currentAccessToken()) {
+        $user->currentAccessToken()->forceFill([
+            'last_used_at' => now(),
+            'expires_at' => now() // Optionally set the token to expire now
+        ])->save();
     }
+}
+
+
+
 }
