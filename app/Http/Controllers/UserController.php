@@ -2,111 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use App\Class\ApiResponseClass;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Interfaces\UserRepositoryInterface;
+use App\Http\Resources\UserResource;
+use App\Services\User\GetUserService;
+use App\Services\User\ShowUserService;
+use App\Services\User\UpdateUserService;
+use App\Services\User\DeleteUserService;
+use App\Class\ApiResponseClass;
 
 class UserController extends Controller
 {
-    private UserRepositoryInterface $userRepositoryInterface;
-    
-    public function __construct(UserRepositoryInterface $userRepositoryInterface)
-    {
-        $this->userRepositoryInterface = $userRepositoryInterface;
+    private GetUserService $getUserService;
+    private ShowUserService $showUserService;
+    private UpdateUserService $updateUserService;
+    private DeleteUserService $deleteUserService;
+
+    public function __construct(
+        GetUserService $getUserService,
+        ShowUserService $showUserService,
+        UpdateUserService $updateUserService,
+        DeleteUserService $deleteUserService
+    ) {
+        $this->getUserService = $getUserService;
+        $this->showUserService = $showUserService;
+        $this->updateUserService = $updateUserService;
+        $this->deleteUserService = $deleteUserService;
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
-        $data = $this->userRepositoryInterface->index();
-
-        return ApiResponseClass::sendResponse(UserResource::collection($data),'',200);
+        $users = $this->getUserService->execute();
+        return ApiResponseClass::sendResponse(UserResource::collection($users), '', 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreUserRequest $request)
-    {
-        $details =[
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password
-        ];
-        DB::beginTransaction();
-        try{
-             $user = $this->userRepositoryInterface->store($details);
-
-             DB::commit();
-             return ApiResponseClass::sendResponse(new UserResource($user),'User Created Successful',201);
-
-        }catch(\Exception $ex){
-            return ApiResponseClass::rollback($ex);
-        }
-    }
-
-    /**
-     * Display the specified resource.
-     */
     public function show($id)
     {
-        $user = $this->userRepositoryInterface->getById($id);
-
-        return ApiResponseClass::sendResponse(new UserResource($user),'',200);
+        $user = $this->showUserService->execute($id);
+        return ApiResponseClass::sendResponse(new UserResource($user), '', 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateUserRequest $request, $id)
     {
-        $updateDetails =[
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password
-        ];
-        DB::beginTransaction();
-        try{
-             $user = $this->userRepositoryInterface->update($updateDetails,$id);
+        $this->updateUserService->execute($request->only(['name', 'email', 'password']), $id);
+        return ApiResponseClass::sendResponse('User Updated Successfully', '', 201);
+    }    
 
-             DB::commit();
-             return ApiResponseClass::sendResponse('User Updated Successful','',201);
-
-        }catch(\Exception $ex){
-            return ApiResponseClass::rollback($ex);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id)
     {
-         $this->userRepositoryInterface->delete($id);
-
-        return ApiResponseClass::sendResponse('User Deleted Successful','',204);
+        $this->deleteUserService->execute($id);
+        return ApiResponseClass::sendResponse('User Deleted Successfully', '', 204);
     }
 }
