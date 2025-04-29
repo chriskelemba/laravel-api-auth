@@ -2,12 +2,18 @@
 
 namespace App\Services\Auth;
 
-use Illuminate\Support\Facades\Auth;
+use App\Interfaces\AuthRepositoryInterface;
 
 class LogoutService
 {
+    protected $authRepository;
+
+    public function __construct(AuthRepositoryInterface $authRepository)
+    {
+        $this->authRepository = $authRepository;
+    }
     public function execute()
     {
-        Auth::logout();
+        $this->authRepository->logout();
     }
 }
