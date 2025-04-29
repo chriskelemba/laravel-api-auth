@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
@@ -13,6 +12,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum', 'last_used_at']);
 
 // user api
+Route::apiResource('/users',UserController::class);
 
 // roles api
 Route::apiResource('/roles',RoleController::class);
@@ -23,4 +23,3 @@ Route::post('/roles/{roleId}/give-permissions', [RoleController::class, 'syncPer
 
 // permissions api
 Route::apiResource('/permissions',PermissionController::class);
-Route::apiResource('/users',UserController::class);
