@@ -25,11 +25,19 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'email' => 'required',
-            'password' => 'required|confirmed',
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'email.unique' => 'This email is already registered.',
+            'password.confirmed' => 'Passwords do not match.',
+        ];
+    }
+    
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
