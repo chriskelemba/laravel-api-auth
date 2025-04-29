@@ -22,22 +22,23 @@ class AuthRepository implements AuthRepositoryInterface
             'expires_at' => now()->addDays(30),
         ])->save();
 
-        return $token; 
+        return $token;
     }
 
     public function register(array $data)
     {
         $data['password'] = Hash::make($data['password']);
+
         $user = User::create($data);
+
+        $user->assignRole('user');
+
+        // Login the user
         Auth::login($user);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return [
-            'user' => $user,
-            'token' => $token
-        ];
+        return $user; // return the user to the service layer
     }
+
 
     public function login(array $credentials)
     {
@@ -50,17 +51,17 @@ class AuthRepository implements AuthRepositoryInterface
 
 
     public function logout()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    // If the user has an active token, update its last_used_at field
-    if ($user && $user->currentAccessToken()) {
-        $user->currentAccessToken()->forceFill([
-            'last_used_at' => now(),
-            'expires_at' => now() // Optionally set the token to expire now
-        ])->save();
+        // If the user has an active token, update its last_used_at field
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->forceFill([
+                'last_used_at' => now(),
+                // 'expires_at' => now() // Optionally set the token to expire now
+            ])->save();
+        }
     }
-}
 
 
 
