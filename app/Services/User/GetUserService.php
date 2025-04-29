@@ -4,7 +4,7 @@ namespace App\Services\User;
 
 use App\Interfaces\UserRepositoryInterface;
 
-class DeleteUserService
+class GetUserService
 {
     private $userRepository;
 
@@ -13,8 +13,8 @@ class DeleteUserService
         $this->userRepository = $userRepository;
     }
 
-    public function execute($id)
+    public function execute()
     {
-        $this->userRepository->delete($id);
+        return $this->userRepository->index();
     }
 }
