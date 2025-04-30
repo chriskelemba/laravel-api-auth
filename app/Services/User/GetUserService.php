@@ -20,7 +20,7 @@ class GetUserService
         $users = User::all();
 
         if ($users->isEmpty()) {
-            throw new NotFoundException('No users found.');
+            throw new NotFoundException('Users');
         }
 
         return $this->userRepository->index();
@@ -31,7 +31,7 @@ class GetUserService
         $user = User::find($id);
 
         if (!$user) {
-            throw new NotFoundException('User not found.');
+            throw new NotFoundException('User');
         }
 
         return $this->userRepository->getById($id);
