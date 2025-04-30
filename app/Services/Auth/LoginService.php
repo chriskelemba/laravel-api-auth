@@ -4,7 +4,6 @@ namespace App\Services\Auth;
 
 use App\Exceptions\Custom\UnauthorizedException;
 use App\Interfaces\AuthRepositoryInterface;
-use Illuminate\Support\Facades\Auth;
 
 class LoginService
 {

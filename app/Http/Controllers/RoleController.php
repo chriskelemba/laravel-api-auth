@@ -13,7 +13,6 @@ use App\Services\Role\DeleteRoleService;
 use App\Services\Role\GetRoleService;
 use App\Services\Role\SyncRolePermissionService;
 use App\Services\Role\UpdateRoleService;
-use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
@@ -64,7 +63,6 @@ class RoleController extends Controller
     }
 
     // delete role 
-
     public function destroy($id)
     {
         $this->deleteRoleService->execute($id);

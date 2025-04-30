@@ -17,4 +17,9 @@ class ShowUserService
     {
         return $this->userRepository->getById($id);
     }
+
+    public function getAllUsers()
+    {
+        return $this->userRepository->index();
+    }
 }
