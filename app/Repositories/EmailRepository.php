@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\EmailRepositoryInterface;
 use App\Mail\EmailVerificationMail;
+use App\Mail\PasswordResetMail;
 use App\Mail\WelcomeMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;

@@ -21,14 +21,15 @@ Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
     ->middleware('auth:sanctum');
 
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
-// Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 
-Route::middleware('api')->post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+// routes/api.php
+// Route::post('/forgot-password', function (Request $request) {
+//     return response()->json(['status' => 'OK']);
+// })->withoutMiddleware(['api']);
 
-// Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
-//     ->middleware('auth:sanctum')
-//     ->name('verification.resend');
-// user api
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
+// users api
 Route::apiResource('/users', UserController::class);
 
 // roles api
