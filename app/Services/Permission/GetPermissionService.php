@@ -2,8 +2,9 @@
 
 namespace App\Services\Permission;
 
-use App\Interfaces\PermissionRepositoryInterface;
 use Spatie\Permission\Models\Permission;
+use App\Exceptions\Custom\NotFoundException;
+use App\Interfaces\PermissionRepositoryInterface;
 
 class GetPermissionService
 {
@@ -23,6 +24,10 @@ class GetPermissionService
     {
         $permission = Permission::find($id);
 
+        if(!$permission) {
+            throw new NotFoundException('Permission not found.');
+        }
+
         $this->permissionRepository->show($permission);
 
         return $permission;
@@ -31,6 +36,10 @@ class GetPermissionService
     public function getAll()
     {
         $permissions = Permission::all();
+
+        if ($permissions->isEmpty()) {
+            throw new NotFoundException('No permissions found.');
+        }
 
         $this->permissionRepository->index();
 
