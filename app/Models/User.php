@@ -50,6 +50,15 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    // Add to User model
+
+    // @TODO add password histories
+    // public function passwordHistories()
+    // {
+    //     return $this->hasMany(PasswordHistory::class);
+    // }
+
+
     // /**
     //  * Check if user has verified their email
     //  */

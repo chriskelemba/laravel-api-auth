@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Interfaces\EmailRepositoryInterface;
+use App\Interfaces\PasswordRepositoryInterface;
 use App\Repositories\AuthRepository;
 use App\Repositories\EmailRepository;
+use App\Repositories\PasswordRepository;
 use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(EmailRepositoryInterface::class, EmailRepository::class);
+        $this->app->bind(PasswordRepositoryInterface::class,PasswordRepository::class);
     }
 
     /**
