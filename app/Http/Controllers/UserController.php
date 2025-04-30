@@ -2,27 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateUserRequest;
+use App\Class\ApiResponseClass;
 use App\Http\Resources\UserResource;
 use App\Services\User\GetUserService;
-use App\Services\User\UpdateUserService;
+use App\Http\Requests\UpdateUserRequest;
 use App\Services\User\DeleteUserService;
-use App\Class\ApiResponseClass;
+use App\Services\User\ResetPasswordService;
+use App\Services\User\UpdateUserService;
+use App\Http\Requests\ResetPasswordRequest;
 
 class UserController extends Controller
 {
     private GetUserService $getUserService;
     private UpdateUserService $updateUserService;
     private DeleteUserService $deleteUserService;
+    private ResetPasswordService $resetPasswordService;
 
     public function __construct(
         GetUserService $getUserService,
         UpdateUserService $updateUserService,
-        DeleteUserService $deleteUserService
+        DeleteUserService $deleteUserService,
+        ResetPasswordService $resetPasswordService
     ) {
         $this->getUserService = $getUserService;
         $this->updateUserService = $updateUserService;
         $this->deleteUserService = $deleteUserService;
+        $this->resetPasswordService = $resetPasswordService;
     }
 
     public function index()
@@ -47,5 +52,16 @@ class UserController extends Controller
     {
         $this->deleteUserService->execute($id);
         return ApiResponseClass::sendResponse('User Deleted Successfully', '', 204);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request, $id)
+    {
+        $this->resetPasswordService->execute(
+            $id,
+            $request->old_password,
+            $request->password
+        );
+
+        return ApiResponseClass::sendResponse('Password reset successfully.', '', 200);
     }
 }

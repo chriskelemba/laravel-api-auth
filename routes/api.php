@@ -22,8 +22,10 @@ Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
 // Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
 //     ->middleware('auth:sanctum')
 //     ->name('verification.resend');
+
 // user api
 Route::apiResource('/users',UserController::class);
+Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
 
 // roles api
 Route::apiResource('/roles', RoleController::class);
