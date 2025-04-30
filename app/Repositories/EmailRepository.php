@@ -27,7 +27,7 @@ class EmailRepository implements EmailRepositoryInterface
     public function sendVerificationEmail($user)
     {
         $verificationUrl = url("/api/verify-email/{$user->id}/{$user->email_verification_token}");
-        
+
         Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
     }
 
@@ -38,8 +38,8 @@ class EmailRepository implements EmailRepositoryInterface
 
     public function sendPasswordResetEmail($user, $token)
     {
-        $resetUrl = url("/api/reset-password/{$token}");
-        
+        $resetUrl = url("/reset-password?token={$token}");
+
         Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
     }
 

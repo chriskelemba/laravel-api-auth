@@ -15,6 +15,7 @@ class PasswordResetMail extends Mailable
 
     public $user;
     public $resetUrl;
+    public $token;
 
     /**
      * Create a new message instance.
@@ -53,5 +54,12 @@ class PasswordResetMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    public function build()
+    {
+        $url = url("/reset-password-form?token={$this->token}");
+        return $this->markdown('emails.password-reset')
+            ->with(['url' => $url]);
     }
 }

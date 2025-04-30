@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Services\Auth\ForgotPasswordService;
 use App\Services\Auth\ResetPasswordService;
+use Illuminate\Http\Request;
 
 class PasswordResetController extends Controller
 {
@@ -34,5 +35,12 @@ class PasswordResetController extends Controller
             $request->password
         );
         return response()->json($response, $response['status']);
+    }
+
+    public function showResetForm(Request $request)
+    {
+        return view('auth.reset-password', [
+            'token' => $request->token
+        ]);
     }
 }

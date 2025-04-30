@@ -32,6 +32,8 @@ class ForgotPasswordService
         }
 
         $tokenData = $this->passwordRepository->createToken($email);
+        // $resetUrl = url("/reset-password?token={$tokenData['token']}"); 
+        // $this->emailRepository->sendPasswordResetEmail($user, $tokenData);
         $this->emailRepository->sendPasswordResetEmail($user, $tokenData['token']);
 
         return [

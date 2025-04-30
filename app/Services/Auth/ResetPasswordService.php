@@ -14,11 +14,6 @@ class ResetPasswordService
     {
         $this->passwordRepository = $passwordRepository;
     }
-    public function handle(array $data)
-    {
-        //
-    }
-
     public function execute(string $token, string $newPassword)
     {
         $tokenData = $this->passwordRepository->validateToken($token);
