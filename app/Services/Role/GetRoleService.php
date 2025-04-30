@@ -21,7 +21,7 @@ class GetRoleService
         $role = Role::find($id);
 
         if (!$role) {
-            throw new NotFoundException('Role not found.');
+            throw new NotFoundException('Role');
         }
 
         $this->roleRepository->show($role);
@@ -34,7 +34,7 @@ class GetRoleService
         $roles = Role::all();
 
         if ($roles->isEmpty()) {
-            throw new NotFoundException('No roles found.');
+            throw new NotFoundException('Roles');
         }
         
         $this->roleRepository->index();

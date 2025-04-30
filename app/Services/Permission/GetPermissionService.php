@@ -25,7 +25,7 @@ class GetPermissionService
         $permission = Permission::find($id);
 
         if(!$permission) {
-            throw new NotFoundException('Permission not found.');
+            throw new NotFoundException('Permission');
         }
 
         $this->permissionRepository->show($permission);
@@ -38,7 +38,7 @@ class GetPermissionService
         $permissions = Permission::all();
 
         if ($permissions->isEmpty()) {
-            throw new NotFoundException('No permissions found.');
+            throw new NotFoundException('Permissions');
         }
 
         $this->permissionRepository->index();
