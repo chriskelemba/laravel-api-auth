@@ -10,8 +10,6 @@ use App\Services\Permission\CreatePermissionService;
 use App\Services\Permission\DeletePermissionService;
 use App\Services\Permission\GetPermissionService;
 use App\Services\Permission\UpdatePermissionService;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {

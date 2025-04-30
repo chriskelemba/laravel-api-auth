@@ -5,48 +5,48 @@ namespace App\Exceptions;
 use App\Exceptions\Custom\BaseCustomException;
 use App\Exceptions\Custom\EmailNotVerifiedException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * A list of the exception types that should not be reported.
-     *
-     * @var array<int, class-string<Throwable>>
-     */
-    protected $dontReport = [
-        //
-    ];
+    protected $dontReport = [];
 
-    /**
-     * A list of the inputs that are never flashed to the session on validation exceptions.
-     *
-     * @var array<int, string>
-     */
     protected $dontFlash = [
         'current_password',
         'password',
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     */
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            Log::error('Unhandled Exception', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         });
 
-        // Handle all custom exceptions derived from BaseCustomException
         $this->renderable(function (BaseCustomException $e, $request) {
+            Log::warning('Custom Exception', [
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
             return $e->render($request);
         });
-        
-        // Handle Laravel's NotFoundHttpException
+
         $this->renderable(function (NotFoundHttpException $e, $request) {
             if ($request->expectsJson()) {
+                Log::notice('Not Found Exception', [
+                    'message' => $e->getMessage(),
+                    'path' => $request->path()
+                ]);
                 return response()->json([
                     'success' => 0,
                     'message' => 'This route is not found',
