@@ -3,7 +3,6 @@
 namespace App\Services\Role;
 
 use App\Interfaces\RoleRepositoryInterface;
-use Spatie\Permission\Models\Role;
 
 class DeleteRoleService
 {

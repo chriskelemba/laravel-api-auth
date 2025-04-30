@@ -2,7 +2,6 @@
 
 namespace App\Exceptions\Custom;
 
-use Exception;
 
 class UnauthorizedException extends BaseCustomException
 {
