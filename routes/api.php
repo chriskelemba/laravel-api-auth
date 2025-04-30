@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -19,11 +20,16 @@ Route::get('/verify-email/{id}/{token}', [EmailVerificationController::class, 'v
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
     ->middleware('auth:sanctum');
 
+Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+// Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
+Route::middleware('api')->post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
 // Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
 //     ->middleware('auth:sanctum')
 //     ->name('verification.resend');
 // user api
-Route::apiResource('/users',UserController::class);
+Route::apiResource('/users', UserController::class);
 
 // roles api
 Route::apiResource('/roles', RoleController::class);
