@@ -6,6 +6,8 @@ use App\Interfaces\AuthRepositoryInterface;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Str;
 
 class AuthRepository implements AuthRepositoryInterface
 {
@@ -28,15 +30,19 @@ class AuthRepository implements AuthRepositoryInterface
     public function register(array $data)
     {
         $data['password'] = Hash::make($data['password']);
+        $data['email_verification_token'] = $this->generateEmailVerificationToken();
+
+        $roleName = 'user';
+        $role = Role::firstOrCreate(['name' => $roleName]);
 
         $user = User::create($data);
 
-        $user->assignRole('user');
+        $user->assignRole($role);
 
         // Login the user
         Auth::login($user);
 
-        return $user; // return the user to the service layer
+        return $user;
     }
 
 
@@ -63,6 +69,16 @@ class AuthRepository implements AuthRepositoryInterface
         }
     }
 
+    public function verifyEmail(User $user)
+    {
+        $user->email_verified_at = now();
+        $user->email_verification_token = null;
+        $user->save();
+    }
 
+    public function generateEmailVerificationToken()
+    {
+        return Str::random(60);
+    }
 
 }

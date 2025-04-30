@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use App\Exceptions\Custom\BaseCustomException;
+use App\Exceptions\Custom\EmailNotVerifiedException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -51,6 +52,16 @@ class Handler extends ExceptionHandler
                     'message' => 'This route is not found',
                     'status' => '404',
                 ], 404);
+            }
+        });
+
+        $this->renderable(function (EmailNotVerifiedException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => 'Please verify your email address',
+                    'status' => '404',
+                ], 403);
             }
         });
     }

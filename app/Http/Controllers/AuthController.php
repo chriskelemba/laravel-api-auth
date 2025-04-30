@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Class\ApiResponseClass;
+use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\AuthResource;
 use App\Services\Auth\LoginService;
 use App\Services\Auth\LogoutService;
 use App\Services\Auth\RegisterService;
+use App\Services\Auth\ResendVerificationEmailService;
 
 class AuthController extends Controller
 {
@@ -16,14 +18,18 @@ class AuthController extends Controller
     private $registerService;
     private $logoutService;
 
+    protected $resendVerificationEmailService;
+
     public function __construct(
         LoginService $loginService,
         RegisterService $registerService,
-        LogoutService $logoutService
+        LogoutService $logoutService,
+        ResendVerificationEmailService $resendVerificationEmailService
     ) {
         $this->loginService = $loginService;
         $this->registerService = $registerService;
         $this->logoutService = $logoutService;
+        $this->resendVerificationEmailService = $resendVerificationEmailService;
     }
 
     // login user
@@ -45,5 +51,16 @@ class AuthController extends Controller
     {
         $this->logoutService->execute();
         return ApiResponseClass::sendResponse('Logout Successful', '', 200);
+    }
+
+    public function resendVerificationEmail()
+    {
+        try {
+            $user = auth()->user();
+            $response = $this->resendVerificationEmailService->execute($user);
+            return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
+        } catch (EmailAlreadyVerifiedException $e) {
+            return ApiResponseClass::throw($e->getMessage(), $e->getStatusCode());
+        }
     }
 }
