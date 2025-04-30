@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
@@ -12,15 +13,26 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum', 'last_used_at']);
 
+// mail apis
+Route::get('/verify-email/{id}/{token}', [EmailVerificationController::class, 'verify'])
+    ->name('verification.verify');
+
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
+    ->middleware('auth:sanctum');
+
+// Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
+//     ->middleware('auth:sanctum')
+//     ->name('verification.resend');
 // user api
 
 // roles api
-Route::apiResource('/roles',RoleController::class);
+Route::apiResource('/roles', RoleController::class);
 
 // role permission api
 Route::get('/roles/{roleId}/permissions', [RoleController::class, 'getRolePermissions']);
 Route::post('/roles/{roleId}/give-permissions', [RoleController::class, 'syncPermissionToRole']);
 
 // permissions api
-Route::apiResource('/permissions',PermissionController::class);
-Route::apiResource('/users',UserController::class);
+Route::apiResource('/permissions', PermissionController::class);
+Route::apiResource('/users', UserController::class);
+

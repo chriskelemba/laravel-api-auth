@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use App\Exceptions\Custom\EmailNotVerifiedException;
 use App\Exceptions\Custom\UnauthorizedException;
 use App\Interfaces\AuthRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
@@ -19,9 +20,12 @@ class LoginService
         $user = $this->authRepository->login($credentials);
 
         if (!$user) {
-            throw new UnauthorizedException('Invalid credentials.');
+            throw new UnauthorizedException();
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            throw new EmailNotVerifiedException();
+        }
         $token = $this->authRepository->generateToken($user);
 
         return [
