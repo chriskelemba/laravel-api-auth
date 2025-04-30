@@ -10,11 +10,11 @@ class ResetPasswordService
 {
     protected $passwordRepository;
 
-    public function __construct(PasswordRepository $passwordRepository)
+    public function __construct(PasswordRepository $passwordRepository,)
     {
         $this->passwordRepository = $passwordRepository;
     }
-    public function execute(string $token, string $newPassword)
+    public function execute(string $token, string $newPassword,?string $currentPassword = null)
     {
         $tokenData = $this->passwordRepository->validateToken($token);
 
@@ -24,7 +24,7 @@ class ResetPasswordService
 
         $this->passwordRepository->resetPassword(
             $tokenData['email'],
-            Hash::make($newPassword)
+            Hash::make($newPassword),
         );
 
         return [

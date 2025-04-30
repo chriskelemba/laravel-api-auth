@@ -23,7 +23,15 @@ class ResetPasswordRequest extends FormRequest
     {
         return [
             'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8|confirmed|different:current_password',
+            'current_password' => 'sometimes|required|string',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'password.different' => 'New password must be different from current password',
         ];
     }
 }

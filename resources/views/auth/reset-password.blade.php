@@ -262,9 +262,7 @@
                 
                 if (response.ok) {
                     showSuccess(result.message || 'Password reset successfully!');
-                    setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 2000);
+
                 } else {
                     showError(result.message || 'Password reset failed');
                 }
