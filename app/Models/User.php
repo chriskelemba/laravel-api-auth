@@ -3,13 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens,HasRoles;
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'email_verification_token'
     ];
 
     /**
@@ -47,4 +49,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // /**
+    //  * Check if user has verified their email
+    //  */
+    // public function hasVerifiedEmail()
+    // {
+    //     return !is_null($this->email_verified_at);
+    // }
+
+    // /**
+    //  * Get the email verification token
+    //  */
+    // public function getEmailVerificationToken()
+    // {
+    //     return $this->email_verification_token;
+    // }
 }
