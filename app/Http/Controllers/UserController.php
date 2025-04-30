@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\User\GetUserService;
-use App\Services\User\ShowUserService;
 use App\Services\User\UpdateUserService;
 use App\Services\User\DeleteUserService;
 use App\Class\ApiResponseClass;
@@ -13,18 +12,15 @@ use App\Class\ApiResponseClass;
 class UserController extends Controller
 {
     private GetUserService $getUserService;
-    private ShowUserService $showUserService;
     private UpdateUserService $updateUserService;
     private DeleteUserService $deleteUserService;
 
     public function __construct(
         GetUserService $getUserService,
-        ShowUserService $showUserService,
         UpdateUserService $updateUserService,
         DeleteUserService $deleteUserService
     ) {
         $this->getUserService = $getUserService;
-        $this->showUserService = $showUserService;
         $this->updateUserService = $updateUserService;
         $this->deleteUserService = $deleteUserService;
     }
@@ -37,7 +33,7 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = $this->showUserService->execute($id);
+        $user = $this->getUserService->getById($id);
         return ApiResponseClass::sendResponse(new UserResource($user), '', 200);
     }
 
