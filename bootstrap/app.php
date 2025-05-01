@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'last_used_at' => UpdateLastUsedAt::class,
-            
+            'password.reset.limit' => \App\Http\Middleware\PasswordResetRateLimiter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

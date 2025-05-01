@@ -8,12 +8,20 @@ use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Services\Auth\ForgotPasswordService;
 use App\Services\Auth\ResetPasswordService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class PasswordResetController extends Controller
+class PasswordResetController extends Controller implements HasMiddleware
 {
     protected $forgotPasswordService;
     protected $resetPasswordService;
 
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('password.reset.limit', only: ['forgotPassword', 'resetPassword']),
+        ];
+    }
     public function __construct(
         ForgotPasswordService $forgotPasswordService,
         ResetPasswordService $resetPasswordService
