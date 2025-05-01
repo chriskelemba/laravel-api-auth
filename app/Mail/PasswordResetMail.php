@@ -9,9 +9,13 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordResetMail extends Mailable
+// usable when one wants to queue the email
+class PasswordResetMail extends Mailable implements ShouldQueue
+// class PasswordResetMail extends Mailable 
 {
     use Queueable, SerializesModels;
+    public $tries = 3;    // Max attempts before failing
+    public $backoff = [30, 60, 120];    // Delay (seconds) between retries
 
     public $user;
     public $resetUrl;
@@ -20,10 +24,11 @@ class PasswordResetMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $resetUrl)
+    public function __construct($user, $resetUrl,$token)
     {
         $this->user = $user;
         $this->resetUrl = $resetUrl;
+        $this->token = $token;
     }
 
     /**

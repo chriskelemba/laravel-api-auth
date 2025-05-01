@@ -19,7 +19,7 @@ class AuthServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
-        $this->app->bind(PasswordRepositoryInterface::class,PasswordRepository::class);
+        $this->app->bind(PasswordRepositoryInterface::class, PasswordRepository::class);
     }
 
     /**
@@ -27,8 +27,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('password-reset', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
-        });
+        
     }
 }

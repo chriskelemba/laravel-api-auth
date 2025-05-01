@@ -40,7 +40,11 @@ class EmailRepository implements EmailRepositoryInterface
     {
         $resetUrl = url("/reset-password?token={$token}");
 
-        Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
+        // normal send
+        // Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl,$token));
+
+        // queue send
+        Mail::to($user->email)->queue(new PasswordResetMail($user, $resetUrl, $token));
     }
 
     public function resendVerificationEmail($user)
