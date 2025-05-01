@@ -20,8 +20,12 @@ Route::get('/verify-email/{id}/{token}', [EmailVerificationController::class, 'v
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
     ->middleware('auth:sanctum');
 
-Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
+// Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 
+Route::middleware('password.reset.limit')->group(function () {
+    Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->name('password.email');
+    // Include other password reset related routes here if needed
+});
 // routes/api.php
 // Route::post('/forgot-password', function (Request $request) {
 //     return response()->json(['status' => 'OK']);
