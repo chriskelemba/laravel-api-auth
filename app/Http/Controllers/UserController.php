@@ -62,6 +62,6 @@ class UserController extends Controller
             $request->password
         );
 
-        return ApiResponseClass::sendResponse('Password reset successfully.', '', 200);
+        return ApiResponseClass::sendResponse('Password Reset Successfully.', '', 200);
     }
 }
