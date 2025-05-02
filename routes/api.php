@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -19,13 +20,21 @@ Route::get('/verify-email/{id}/{token}', [EmailVerificationController::class, 'v
 Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
     ->middleware('auth:sanctum');
 
-// Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
-//     ->middleware('auth:sanctum')
-//     ->name('verification.resend');
+// Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword']);
 
-// user api
-Route::apiResource('/users',UserController::class);
-Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+Route::middleware('password.reset.limit')->group(function () {
+    Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->name('password.email');
+    // Include other password reset related routes here if needed
+});
+// routes/api.php
+// Route::post('/forgot-password', function (Request $request) {
+//     return response()->json(['status' => 'OK']);
+// })->withoutMiddleware(['api']);
+
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
+// users api
+Route::apiResource('/users', UserController::class);
 
 // roles api
 Route::apiResource('/roles', RoleController::class);

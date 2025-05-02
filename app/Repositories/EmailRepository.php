@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\EmailRepositoryInterface;
 use App\Mail\EmailVerificationMail;
+use App\Mail\PasswordResetMail;
 use App\Mail\WelcomeMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -26,7 +27,7 @@ class EmailRepository implements EmailRepositoryInterface
     public function sendVerificationEmail($user)
     {
         $verificationUrl = url("/api/verify-email/{$user->id}/{$user->email_verification_token}");
-        
+
         Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
     }
 
@@ -37,9 +38,13 @@ class EmailRepository implements EmailRepositoryInterface
 
     public function sendPasswordResetEmail($user, $token)
     {
-        $resetUrl = url("/api/reset-password/{$token}");
-        
-        Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl));
+        $resetUrl = url("/reset-password?token={$token}");
+
+        // normal send
+        // Mail::to($user->email)->send(new PasswordResetMail($user, $resetUrl,$token));
+
+        // queue send
+        Mail::to($user->email)->queue(new PasswordResetMail($user, $resetUrl, $token));
     }
 
     public function resendVerificationEmail($user)
