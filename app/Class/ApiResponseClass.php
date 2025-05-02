@@ -29,4 +29,12 @@ class ApiResponseClass
         return response()->json($response, $code);
     }
 
+    public static function error(string $message, array $errors = [], int $status = 400)
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'errors' => $errors,
+        ], $status);
+    }
 }

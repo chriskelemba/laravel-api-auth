@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Class\ApiResponseClass;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
@@ -33,7 +34,12 @@ class PasswordResetController extends Controller implements HasMiddleware
     public function forgotPassword(ForgotPasswordRequest $request)
     {
         $response = $this->forgotPasswordService->execute($request->email);
-        return response()->json($response, $response['status']);
+
+        if ($response['success']) {
+            return ApiResponseClass::sendResponse($response['message'], $response['data'] ?? [], $response['status']);
+        }
+
+        return ApiResponseClass::error($response['message'], $response['errors'] ?? [], $response['status']);
     }
 
     public function resetPassword(ResetPasswordRequest $request)
@@ -42,7 +48,12 @@ class PasswordResetController extends Controller implements HasMiddleware
             $request->token,
             $request->password
         );
-        return response()->json($response, $response['status']);
+
+        if ($response['success']) {
+            return ApiResponseClass::sendResponse($response['message'], $response['data'] ?? [], $response['status']);
+        }
+
+        return ApiResponseClass::error($response['message'], $response['errors'] ?? [], $response['status']);
     }
 
     public function showResetForm(Request $request)
