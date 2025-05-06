@@ -28,12 +28,12 @@ class EmailRepository implements EmailRepositoryInterface
     {
         $verificationUrl = url("/api/verify-email/{$user->id}/{$user->email_verification_token}");
 
-        Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+        Mail::to($user->email)->queue(new EmailVerificationMail($user, $verificationUrl));
     }
 
     public function sendWelcomeEmail($user)
     {
-        Mail::to($user->email)->send(new WelcomeMail($user));
+        Mail::to($user->email)->queue(new WelcomeMail($user));
     }
 
     public function sendPasswordResetEmail($user, $token)
@@ -64,7 +64,7 @@ class EmailRepository implements EmailRepositoryInterface
         }
 
         $verificationUrl = $this->generateVerificationUrl($user);
-        Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+        Mail::to($user->email)->queue(new EmailVerificationMail($user, $verificationUrl));
 
         return [
             'success' => true,
