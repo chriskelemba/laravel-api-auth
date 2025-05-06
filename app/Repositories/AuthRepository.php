@@ -64,7 +64,7 @@ class AuthRepository implements AuthRepositoryInterface
         if ($user && $user->currentAccessToken()) {
             $user->currentAccessToken()->forceFill([
                 'last_used_at' => now(),
-                // 'expires_at' => now() // Optionally set the token to expire now
+                'expires_at' => now() // Optionally set the token to expire now
             ])->save();
         }
     }

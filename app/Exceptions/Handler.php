@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use App\Exceptions\Custom\BaseCustomException;
 use App\Exceptions\Custom\EmailNotVerifiedException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Log;
 use Throwable;

@@ -27,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PermissionRepositoryInterface::class, PermissionRepository::class);
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(EmailRepositoryInterface::class, EmailRepository::class);
+        $this->app->singleton(
+            \Illuminate\Database\QueryException::class,
+            \App\Exceptions\Custom\Database\CustomQueryException::class
+        );
     }
 
     /**

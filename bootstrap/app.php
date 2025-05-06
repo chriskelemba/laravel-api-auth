@@ -1,14 +1,20 @@
 <?php
 
+use App\Exceptions\Custom\Database\ConnectionException;
+use App\Exceptions\Custom\Database\DatabaseErrorException;
+use App\Exceptions\Custom\ForbiddenException;
+use App\Exceptions\Custom\ServerErrorException;
+use App\Exceptions\Custom\UnauthenticatedException;
 use App\Http\Middleware\UpdateLastUsedAt;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request; // Add this import
-use App\Exceptions\Custom\BaseCustomException; // Import your base exception class
+use Illuminate\Http\Request;
+use App\Exceptions\Custom\BaseCustomException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-// use Throwable;
+use Psr\Log\LogLevel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,15 +25,35 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'last_used_at' => UpdateLastUsedAt::class,
             'password.reset.limit' => \App\Http\Middleware\PasswordResetRateLimiter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->dontReportDuplicates();
+
+        // Set log levels for specific exceptions
+        $exceptions->level(PDOException::class, LogLevel::CRITICAL); // For database errors
+        $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
+        $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
+
+        $exceptions->level(AuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
+        $exceptions->level(ForbiddenException::class, LogLevel::ALERT); // For forbiden errors
+        $exceptions->level(ServerErrorException::class, LogLevel::CRITICAL); // For server errors
+
+        $exceptions->report(function (QueryException $e) {
+        });
+
+        $exceptions->report(function (ConnectionException $e) {
+        });
+
         // Define when to render JSON responses
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
             if ($request->is('api/*')) {
-                return true; // Always render JSON for 'api/*' routes
+                return true;
             }
             
             return $request->expectsJson();
@@ -53,8 +79,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->renderable(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'success' => 0,
-                    'message' => 'Unauthenticated',
+                    'success' => 0,   
+                    'message' => 'Invalid token.Please login',
                     'status' => '401',
                 ], 401);
             }
@@ -72,4 +98,5 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], $statusCode);
             }
         });
+
     })->create();

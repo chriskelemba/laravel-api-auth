@@ -10,53 +10,46 @@ use App\Services\User\DeleteUserService;
 use App\Services\User\ResetPasswordService;
 use App\Services\User\UpdateUserService;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Services\User\UserService;
 
 class UserController extends Controller
 {
-    private GetUserService $getUserService;
-    private UpdateUserService $updateUserService;
-    private DeleteUserService $deleteUserService;
-    private ResetPasswordService $resetPasswordService;
 
     public function __construct(
-        GetUserService $getUserService,
-        UpdateUserService $updateUserService,
-        DeleteUserService $deleteUserService,
-        ResetPasswordService $resetPasswordService
-    ) {
-        $this->getUserService = $getUserService;
-        $this->updateUserService = $updateUserService;
-        $this->deleteUserService = $deleteUserService;
-        $this->resetPasswordService = $resetPasswordService;
-    }
+        private UserService $userService
+    ) {}
 
     public function index()
     {
-        $users = $this->getUserService->execute();
-        return ApiResponseClass::sendResponse(UserResource::collection($users), '', 200);
+        try {
+            $users = $this->userService->getAllUsers();
+            return ApiResponseClass::sendResponse(UserResource::collection($users), '', 200);
+        } catch (\Exception $e) {
+            return ApiResponseClass::throw($e);
+        }
     }
 
     public function show($id)
     {
-        $user = $this->getUserService->getById($id);
+        $user = $this->userService->getUserById($id);
         return ApiResponseClass::sendResponse(new UserResource($user), '', 200);
     }
 
     public function update(UpdateUserRequest $request, $id)
     {
-        $this->updateUserService->execute($request->only(['name', 'email', 'password']), $id);
+        $this->userService->updateUser( $id, $request->only(['name', 'email', 'password']));
         return ApiResponseClass::sendResponse('User Updated Successfully', '', 201);
     }    
 
     public function destroy($id)
     {
-        $this->deleteUserService->execute($id);
+        $this->userService->deleteUser($id);
         return ApiResponseClass::sendResponse('User Deleted Successfully', '', 204);
     }
 
     public function resetPassword(ResetPasswordRequest $request, $id)
     {
-        $this->resetPasswordService->execute(
+        $this->userService->resetPassword(
             $id,
             $request->old_password,
             $request->password
