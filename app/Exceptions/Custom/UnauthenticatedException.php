@@ -3,7 +3,7 @@
 namespace App\Exceptions\Custom;
 
 
-class UnauthorizedException extends BaseCustomException
+class UnauthenticatedException extends BaseCustomException
 {
     protected $statusCode = 401;
 

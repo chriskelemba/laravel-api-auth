@@ -3,7 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Exceptions\Custom\EmailNotVerifiedException;
-use App\Exceptions\Custom\UnauthorizedException;
+use App\Exceptions\Custom\UnauthenticatedException;
 use App\Interfaces\AuthRepositoryInterface;
 
 class LoginService
@@ -19,7 +19,7 @@ class LoginService
         $user = $this->authRepository->login($credentials);
 
         if (!$user) {
-            throw new UnauthorizedException();
+            throw new UnauthenticatedException();
         }
 
         if (!$user->hasVerifiedEmail()) {

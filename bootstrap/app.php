@@ -1,14 +1,20 @@
 <?php
 
-use App\Exceptions\Database\QueryException;
+use App\Exceptions\Custom\Database\ConnectionException;
+use App\Exceptions\Custom\Database\DatabaseErrorException;
+use App\Exceptions\Custom\ForbiddenException;
+use App\Exceptions\Custom\ServerErrorException;
+use App\Exceptions\Custom\UnauthenticatedException;
 use App\Http\Middleware\UpdateLastUsedAt;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use App\Exceptions\Custom\BaseCustomException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Psr\Log\LogLevel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,97 +25,78 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'last_used_at' => UpdateLastUsedAt::class,
             'password.reset.limit' => \App\Http\Middleware\PasswordResetRateLimiter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        // Define JSON response rendering
+        $exceptions->dontReportDuplicates();
+
+        // Set log levels for specific exceptions
+        $exceptions->level(PDOException::class, LogLevel::CRITICAL); // For database errors
+        $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
+        $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
+
+        $exceptions->level(UnauthenticatedException::class, LogLevel::NOTICE); // For unauthenticated errors
+        $exceptions->level(ForbiddenException::class, LogLevel::ALERT); // For forbiden errors
+        $exceptions->level(ServerErrorException::class, LogLevel::CRITICAL); // For server errors
+
+        $exceptions->report(function (QueryException $e) {
+        });
+
+        $exceptions->report(function (ConnectionException $e) {
+        });
+
+        // Define when to render JSON responses
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
-            return $request->is('api/*') || $request->expectsJson();
+            if ($request->is('api/*')) {
+                return true;
+            }
+            
+            return $request->expectsJson();
         });
         
-        // Custom exceptions
+        // Register your custom exception handlers
         $exceptions->renderable(function (BaseCustomException $e, Request $request) {
             return $e->render($request);
         });
         
-        // Database connection exceptions
-        $exceptions->renderable(function (\App\Exceptions\Database\DatabaseConnectionException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Service temporarily unavailable',
-                'status' => 503
-            ], 503);
-        });
-        
-        // Query exceptions (SQL errors)
-        $exceptions->renderable(function (QueryException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error occurred',
-                'status' => 500
-            ], 500);
-        });
-        
-        // PDO exceptions (connection issues)
-        $exceptions->renderable(function (PDOException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database service unavailable',
-                'status' => 503
-            ], 503);
-        });
-        
-        // Not found exceptions
+        // Handle Laravel's NotFoundHttpException
         $exceptions->renderable(function (NotFoundHttpException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Resource not found',
-                'status' => 404
-            ], 404);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => 'This route is not found',
+                    'status' => '404',
+                ], 404);
+            }
         });
         
-        // Authentication exceptions
+        // Handle other common exceptions
         $exceptions->renderable(function (AuthenticationException $e, Request $request) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthenticated',
-                'status' => 401
-            ], 401);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => 'Invalid token.Please login',
+                    'status' => '401',
+                ], 401);
+            }
         });
         
-        // Fallback for all other exceptions
+        // General fallback for other exceptions
         $exceptions->renderable(function (Throwable $e, Request $request) {
-            $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
-            
-            $message = config('app.debug') 
-                ? $e->getMessage() 
-                : 'An error occurred';
-            
-            return response()->json([
-                'success' => false,
-                'message' => $message,
-                'status' => $statusCode
-            ], $statusCode);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
+                
+                return response()->json([
+                    'success' => 0,
+                    'message' => $e->getMessage() ?: 'Server Error',
+                    'status' => (string) $statusCode,
+                ], $statusCode);
+            }
         });
-        
-        // Report database exceptions with context
-        $exceptions->reportable(function (QueryException $e) {
-            \Log::error('Database query error', [
-                'message' => $e->getMessage(),
-                'sql' => $e->getSql(),
-                'bindings' => $e->getBindings(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        });
-        
-        $exceptions->reportable(function (PDOException $e) {
-            \Log::critical('Database connection failed', [
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        });
-    })
-    ->create();
+
+    })->create();
