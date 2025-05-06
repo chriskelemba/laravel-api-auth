@@ -40,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
         $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
 
-        $exceptions->level(UnauthenticatedException::class, LogLevel::NOTICE); // For unauthenticated errors
+        $exceptions->level(AuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
         $exceptions->level(ForbiddenException::class, LogLevel::ALERT); // For forbiden errors
         $exceptions->level(ServerErrorException::class, LogLevel::CRITICAL); // For server errors
 
@@ -79,7 +79,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->renderable(function (AuthenticationException $e, Request $request) {
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
-                    'success' => 0,
+                    'success' => 0,   
                     'message' => 'Invalid token.Please login',
                     'status' => '401',
                 ], 401);
