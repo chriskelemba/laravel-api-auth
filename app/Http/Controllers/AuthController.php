@@ -32,12 +32,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $response = $this->authService->login($request->only(['email', 'password']));
-
-        return ApiResponseClass::sendResponse(
-            new AuthResponseResource($response['user'], $response['token']),
-            'Login Successful',
-            200
-        );
+        return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']),'token' => $response['token'],], 'Login Successful', 200);
     }
 
 

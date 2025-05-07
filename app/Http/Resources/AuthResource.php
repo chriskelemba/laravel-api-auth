@@ -18,7 +18,6 @@ class AuthResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'roles' => $this->getRoleNames()->toArray(),
-            'email_verified_at' => $this->email_verified_at
         ];
     }
 }
