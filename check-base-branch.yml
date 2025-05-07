@@ -1,0 +1,16 @@
+name: Prevent Direct Merge to Main
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  prevent_direct_merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block if source branch is not development
+        run: |
+          if [[ "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" != "development" ]]; then
+            echo "Only development branch is allowed to merge into main."
+            exit 1
+          fi
