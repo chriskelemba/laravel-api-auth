@@ -2,12 +2,18 @@
 
 namespace App\Services\Auth;
 
+use App\Events\UserLoginFailed;
 use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 use App\Exceptions\Custom\EmailNotVerifiedException;
 use App\Exceptions\Custom\UnauthenticatedException;
 use App\Exceptions\Custom\UserAuthenticationException;
 use App\Interfaces\AuthRepositoryInterface;
 use App\Interfaces\EmailRepositoryInterface;
+use App\Mail\SecurityTeamAlert;
+use App\Mail\UserBlockedNotification;
+use App\Models\User;
+use Auth;
+use Mail;
 
 class AuthService
 {
@@ -43,11 +49,40 @@ class AuthService
     // Handle user login
     public function login(array $credentials): array
     {
-        $user = $this->authRepository->login($credentials);
+        // First find the user by email
+        $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user) {
-            throw new UserAuthenticationException();
+        // Immediately check if user exists and is blocked
+        if ($user && $user->blocked === 'Y') {
+            throw new UserAuthenticationException('Account is blocked. Please contact admin.');
         }
+
+        // Verify credentials
+        if (!Auth::attempt($credentials)) {
+            if ($user) {
+                // Increment attempts and check blocking in a transaction
+                \DB::transaction(function () use ($user) {
+                    $user->increment('login_attempts');
+                    $user->refresh(); // Get fresh data
+
+                    if ($user->login_attempts >= 5) {
+                        $user->update(['blocked' => 'Y']);
+                        \Log::info('User blocked: ' . $user->id);
+
+                        // Send notifications
+                        Mail::to($user->email)->queue(new UserBlockedNotification($user));
+                        Mail::to('premtube822@gmail.com')->queue(new SecurityTeamAlert($user));
+                    }
+                });
+            }
+            throw new UserAuthenticationException('Invalid credentials');
+        }
+
+        // Reset attempts on successful login
+        $user->update([
+            'login_attempts' => 0,
+            'blocked' => 'N'
+        ]);
 
         $token = $this->authRepository->generateToken($user);
 
@@ -57,8 +92,6 @@ class AuthService
             'email_verified' => $user->hasVerifiedEmail(),
         ];
     }
-
-
     // Handle user logout
     public function logout(): void
     {
