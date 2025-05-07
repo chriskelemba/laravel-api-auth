@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\Custom\UserBlockedException;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,16 +12,19 @@ class EnsureUserIsNotBlocked
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         if (auth()->check()) {
-            $user = auth()->user();
-            $user->refresh(); // Get fresh data from database
+            $user = auth()->user()->fresh(); // Get fresh data from database
 
             if ($user->blocked === 'Y') {
-                abort(403, 'Your account is blocked due to multiple failed login attempts.');
+                throw new UserBlockedException(
+                    'Your account is blocked due to multiple failed login attempts. Please contact support.'
+                );
             }
         }
 

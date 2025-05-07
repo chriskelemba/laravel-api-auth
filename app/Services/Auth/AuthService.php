@@ -4,8 +4,6 @@ namespace App\Services\Auth;
 
 use App\Events\UserLoginFailed;
 use App\Exceptions\Custom\EmailAlreadyVerifiedException;
-use App\Exceptions\Custom\EmailNotVerifiedException;
-use App\Exceptions\Custom\UnauthenticatedException;
 use App\Exceptions\Custom\UserAuthenticationException;
 use App\Interfaces\AuthRepositoryInterface;
 use App\Interfaces\EmailRepositoryInterface;
