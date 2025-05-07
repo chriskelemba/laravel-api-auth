@@ -21,12 +21,8 @@ class UserController extends Controller
 
     public function index()
     {
-        try {
-            $users = $this->userService->getAllUsers();
-            return ApiResponseClass::sendResponse(UserResource::collection($users), '', 200);
-        } catch (\Exception $e) {
-            return ApiResponseClass::throw($e);
-        }
+        $users = $this->userService->getAllUsers();
+        return ApiResponseClass::sendResponse(UserResource::collection($users), '', 200);
     }
 
     public function show($id)
