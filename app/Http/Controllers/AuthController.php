@@ -55,12 +55,8 @@ class AuthController extends Controller
 
     public function resendVerificationEmail()
     {
-        try {
-            $user = auth()->user();
-            $response = $this->resendVerificationEmailService->execute($user);
-            return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
-        } catch (EmailAlreadyVerifiedException $e) {
-            return ApiResponseClass::throw($e->getMessage(), $e->getStatusCode());
-        }
+        $user = auth()->user();
+        $response = $this->resendVerificationEmailService->execute($user);
+        return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
     }
 }

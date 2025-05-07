@@ -24,7 +24,8 @@ class UserService
      */
     public function getAllUsers()
     {
-        $users = User::all();
+        // $users = User::all();
+        $users = DB::table('userss')->get();
 
         if ($users->isEmpty()) {
             throw new NotFoundException('Users');
@@ -62,13 +63,8 @@ class UserService
     {
         DB::beginTransaction();
 
-        try {
-            $this->userRepository->update($data, $id);
-            DB::commit();
-        } catch (\Exception $ex) {
-            DB::rollBack();
-            ApiResponseClass::rollback($ex);
-        }
+        $this->userRepository->update($data, $id);
+        DB::commit();
 
         return User::findOrFail($id);
     }
