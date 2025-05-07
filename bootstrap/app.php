@@ -1,6 +1,8 @@
 <?php
 
 // use PDOException;
+use App\Exceptions\Custom\UserAuthenticationException;
+use App\Exceptions\Custom\UserAuthorizationException;
 use Psr\Log\LogLevel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -59,7 +61,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
         // $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
 
-        $exceptions->level(AuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
+        // $exceptions->level(AuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
+        $exceptions->level(UserAuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
+        $exceptions->level(UserAuthorizationException::class, LogLevel::WARNING); // For unauthenticated errors
         $exceptions->level(ForbiddenException::class, LogLevel::ALERT); // For forbiden errors
         $exceptions->level(ServerErrorException::class, LogLevel::CRITICAL); // For server errors
 

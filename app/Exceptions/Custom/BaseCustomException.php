@@ -10,6 +10,12 @@ abstract class BaseCustomException extends Exception
     protected $statusCode = 500;
     protected $success = false;
 
+    public function __construct(string $message = '', int $statusCode = 500)
+    {
+        parent::__construct($message, $statusCode);
+        $this->statusCode = $statusCode;
+    }
+
     public function render(Request $request)
     {
         return response()->json([
