@@ -24,11 +24,7 @@ class EmailVerificationController extends Controller
 
         $result = $this->emailVerificationService->verify($user, $token);
 
-        if ($result['success']) {
-            return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
-        }
-
-        return ApiResponseClass::throw($result['message'], 400);
+        return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
     }
 
     public function resend()
@@ -37,10 +33,6 @@ class EmailVerificationController extends Controller
 
         $result = $this->emailVerificationService->resend($user);
 
-        if ($result['success']) {
-            return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
-        }
-
-        return ApiResponseClass::throw($result['message'], 400);
+        return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
     }
 }

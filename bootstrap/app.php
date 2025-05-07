@@ -1,20 +1,27 @@
 <?php
 
-use App\Exceptions\Custom\Database\ConnectionException;
-use App\Exceptions\Custom\Database\DatabaseErrorException;
-use App\Exceptions\Custom\ForbiddenException;
-use App\Exceptions\Custom\ServerErrorException;
-use App\Exceptions\Custom\UnauthenticatedException;
+// use PDOException;
+use Psr\Log\LogLevel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Application;
+use Illuminate\Database\QueryException;
 use App\Http\Middleware\UpdateLastUsedAt;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Application;
+use App\Exceptions\Custom\ForbiddenException;
+use App\Exceptions\Custom\BaseCustomException;
+use App\Exceptions\Custom\ServerErrorException;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use App\Exceptions\Custom\DatabaseQueryException;
+use App\Exceptions\Custom\DatabaseErrorException;
+use App\Http\Middleware\PasswordResetRateLimiter;
+use App\Exceptions\Custom\UnauthenticatedException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
-use App\Exceptions\Custom\BaseCustomException;
+use App\Exceptions\Custom\DatabaseConnectionException;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use App\Exceptions\Custom\Database\ConnectionException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Psr\Log\LogLevel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,30 +32,42 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
             'last_used_at' => UpdateLastUsedAt::class,
-            'password.reset.limit' => \App\Http\Middleware\PasswordResetRateLimiter::class,
+            'password.reset.limit' => PasswordResetRateLimiter::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->dontReportDuplicates();
 
+        $exceptions->render(function (QueryException $e, $request) {
+            $message = $e->getMessage();
+        
+            if (DatabaseConnectionException::isConnectionError($message)) {
+                throw new DatabaseConnectionException();
+            } elseif (DatabaseQueryException::isQueryError($message)) {
+                throw new DatabaseQueryException();
+            } else {
+                // All other database errors
+                throw new DatabaseErrorException();
+            }
+        });
+
         // Set log levels for specific exceptions
         $exceptions->level(PDOException::class, LogLevel::CRITICAL); // For database errors
-        $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
-        $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
+        // $exceptions->level(QueryException::class, LogLevel::ERROR); // For query errors
+        // $exceptions->level(ConnectionException::class, LogLevel::ALERT); // For connection errors
 
         $exceptions->level(AuthenticationException::class, LogLevel::NOTICE); // For unauthenticated errors
         $exceptions->level(ForbiddenException::class, LogLevel::ALERT); // For forbiden errors
         $exceptions->level(ServerErrorException::class, LogLevel::CRITICAL); // For server errors
 
-        $exceptions->report(function (QueryException $e) {
-        });
+        // $exceptions->report(function (QueryException $e) {
+        // });
 
-        $exceptions->report(function (ConnectionException $e) {
-        });
+        // $exceptions->report(function (ConnectionException $e) {
+        // });
 
         // Define when to render JSON responses
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
