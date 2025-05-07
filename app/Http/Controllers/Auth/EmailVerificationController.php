@@ -26,13 +26,4 @@ class EmailVerificationController extends Controller
 
         return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
     }
-
-    public function resend()
-    {
-        $user = auth()->user();
-
-        $result = $this->emailVerificationService->resend($user);
-
-        return ApiResponseClass::sendResponse(new AuthResource($result['user']), $result['message']);
-    }
 }

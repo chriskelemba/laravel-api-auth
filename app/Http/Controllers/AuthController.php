@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Http\Request;
 use App\Class\ApiResponseClass;
-use App\Exceptions\Custom\EmailAlreadyVerifiedException;
+use App\Services\Auth\AuthService;
+use App\Http\Resources\AuthResource;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\AuthResource;
 use App\Http\Resources\AuthResponseResource;
-use App\Services\Auth\AuthService;
 use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\ResendVerificationEmailService;
+use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 
 class AuthController extends Controller
 {
@@ -53,9 +55,15 @@ class AuthController extends Controller
         return ApiResponseClass::sendResponse('Logout Successful', '', 200);
     }
 
-    public function resendVerificationEmail()
+    public function resendVerificationEmail(Request $request)
     {
-        $user = auth()->user();
+        $userIdentifier = $request->input('email');
+        $user = User::where('email', $userIdentifier)->first();
+    
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found'], 404);
+        }
+    
         $response = $this->emailVerificationService->execute($user);
         return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
     }

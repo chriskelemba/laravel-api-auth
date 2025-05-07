@@ -25,8 +25,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:san
 Route::get('/verify-email/{id}/{token}', [EmailVerificationController::class, 'verify'])
     ->name('verification.verify');
 
-Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
-    ->middleware('auth:sanctum');
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail']);
 
 /*
 |--------------------------------------------------------------------------
