@@ -7,56 +7,56 @@ use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\AuthResource;
-use App\Services\Auth\LoginService;
-use App\Services\Auth\LogoutService;
-use App\Services\Auth\RegisterService;
+use App\Http\Resources\AuthResponseResource;
+use App\Services\Auth\AuthService;
+use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\ResendVerificationEmailService;
 
 class AuthController extends Controller
 {
-    private $loginService;
-    private $registerService;
-    private $logoutService;
+    private $authService;
 
-    protected $resendVerificationEmailService;
+    protected $emailVerificationService;
 
     public function __construct(
-        LoginService $loginService,
-        RegisterService $registerService,
-        LogoutService $logoutService,
-        ResendVerificationEmailService $resendVerificationEmailService
+        AuthService $authService,
+        ResendVerificationEmailService $emailVerificationService
     ) {
-        $this->loginService = $loginService;
-        $this->registerService = $registerService;
-        $this->logoutService = $logoutService;
-        $this->resendVerificationEmailService = $resendVerificationEmailService;
+        $this->authService = $authService;
+        $this->emailVerificationService = $emailVerificationService;
     }
 
     // login user
     public function login(LoginRequest $request)
     {
-        $response = $this->loginService->execute($request->only(['email', 'password']));
-        return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']),'token' => $response['token'],], 'Login Successful', 200);
+        $response = $this->authService->login($request->only(['email', 'password']));
+
+        return ApiResponseClass::sendResponse(
+            new AuthResponseResource($response['user'], $response['token']),
+            'Login Successful',
+            200
+        );
     }
+
 
     // register user
     public function register(RegisterRequest $request)
     {
-         $response= $this->registerService->execute($request->only(['name', 'email', 'password']));
-         return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']),'token' => $response['token'],], 'User registered successfully', 200);
+        $response = $this->authService->register($request->only(['name', 'email', 'password']));
+        return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']), 'token' => $response['token'],], 'User registered successfully', 200);
     }
 
     // logout user
     public function logout()
     {
-        $this->logoutService->execute();
+        $this->authService->logout();
         return ApiResponseClass::sendResponse('Logout Successful', '', 200);
     }
 
     public function resendVerificationEmail()
     {
         $user = auth()->user();
-        $response = $this->resendVerificationEmailService->execute($user);
+        $response = $this->emailVerificationService->execute($user);
         return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
     }
 }

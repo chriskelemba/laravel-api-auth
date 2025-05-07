@@ -8,49 +8,34 @@ use App\Http\Requests\SyncPermissionToRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use App\Http\Resources\RolePermissionResource;
 use App\Http\Resources\RoleResource;
-use App\Services\Role\CreateRoleService;
-use App\Services\Role\DeleteRoleService;
-use App\Services\Role\GetRoleService;
-use App\Services\Role\SyncRolePermissionService;
-use App\Services\Role\UpdateRoleService;
+use App\Services\Role\RoleService;
 
 class RoleController extends Controller
 {
-    private $createRoleService;
-    private $getRoleService;
+    private $roleService;
 
-    private $updateRoleService;
-
-    private $deleteRoleService;
-
-    private $syncRolePermissionService;
-
-    public function __construct(CreateRoleService $createRoleService,GetRoleService $getRoleService,UpdateRoleService $updateRoleService,DeleteRoleService $deleteRoleService, SyncRolePermissionService $syncRolePermissionService)
+    public function __construct(RoleService $roleService)
     {
-        $this->createRoleService = $createRoleService;
-        $this->getRoleService = $getRoleService;
-        $this->updateRoleService = $updateRoleService;
-        $this->deleteRoleService = $deleteRoleService;
-        $this->syncRolePermissionService = $syncRolePermissionService;
+        $this->roleService = $roleService;
     }
 
     // get all roles
     public function index()
     {
-        $roles = $this->getRoleService->getAll();
+        $roles = $this->roleService->getAll();
         return ApiResponseClass::sendResponse(['roles' => RoleResource::collection($roles)],'Roles fetched successfully',200);
     }
     // get role
     public function show($id)
     {
-        $role = $this->getRoleService->execute($id);
+        $role = $this->roleService->getById($id);
         return ApiResponseClass::sendResponse(['role' => new RoleResource($role)], 'Role fetched successfully', 200);
     }
     // post role
 
     public function store(StoreRoleRequest $request)
     {
-        $role = $this->createRoleService->execute($request->all());
+        $role = $this->roleService->create($request->all());
         return ApiResponseClass::sendResponse(new RoleResource($role), 'Role created successfully', 200);
     }
 
@@ -58,14 +43,14 @@ class RoleController extends Controller
 
     public function update(UpdateRoleRequest $request,$id)
     {
-        $role = $this->updateRoleService->execute($id, $request->only('name'));
+        $role = $this->roleService->update($id, $request->only('name'));
         return ApiResponseClass::sendResponse(new RoleResource($role), 'Role updated successfully', 200);
     }
 
     // delete role 
     public function destroy($id)
     {
-        $this->deleteRoleService->execute($id);
+        $this->roleService->delete($id);
         return ApiResponseClass::sendResponse( 'Role deleted successfully','', 200);
     }
 
@@ -73,14 +58,14 @@ class RoleController extends Controller
     public function syncPermissionToRole(SyncPermissionToRoleRequest $request,$roleId)
     {
         $permissions = $request->permissions;
-        $syncedPermissions = $this->syncRolePermissionService->execute($roleId, $permissions);
+        $syncedPermissions = $this->roleService->syncPermissions($roleId, $permissions);
         return ApiResponseClass::sendResponse(['role' => new RolePermissionResource($syncedPermissions)], 'Permissions synced successfully', 200);
     }
 
     // get role permissions
     public function getRolePermissions($roleId)
     {
-        $role = $this->syncRolePermissionService->getRolePermissions($roleId);
+        $role = $this->roleService->getRolePermissions($roleId);
         return ApiResponseClass::sendResponse([new RolePermissionResource($role)], 'Permissions fetched successfully', 200);
     }
 }
