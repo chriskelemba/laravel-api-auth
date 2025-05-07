@@ -13,9 +13,18 @@ use App\Http\Resources\AuthResponseResource;
 use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\ResendVerificationEmailService;
 use App\Exceptions\Custom\EmailAlreadyVerifiedException;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class AuthController extends Controller
+class AuthController extends Controller implements HasMiddleware
 {
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('throttle.logins', only: ['login']),
+        ];
+    }
     private $authService;
 
     protected $emailVerificationService;
