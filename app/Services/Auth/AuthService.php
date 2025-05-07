@@ -5,6 +5,7 @@ namespace App\Services\Auth;
 use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 use App\Exceptions\Custom\EmailNotVerifiedException;
 use App\Exceptions\Custom\UnauthenticatedException;
+use App\Exceptions\Custom\UserAuthenticationException;
 use App\Interfaces\AuthRepositoryInterface;
 use App\Interfaces\EmailRepositoryInterface;
 
@@ -45,7 +46,7 @@ class AuthService
         $user = $this->authRepository->login($credentials);
 
         if (!$user) {
-            throw new UnauthenticatedException();
+            throw new UserAuthenticationException();
         }
 
         $token = $this->authRepository->generateToken($user);
