@@ -10,6 +10,7 @@ use App\Http\Resources\AuthResource;
 use App\Http\Resources\AuthResponseResource;
 use App\Services\Auth\AuthService;
 use App\Services\Auth\EmailVerificationService;
+use App\Services\Auth\ResendVerificationEmailService;
 
 class AuthController extends Controller
 {
@@ -19,9 +20,10 @@ class AuthController extends Controller
 
     public function __construct(
         AuthService $authService,
-        EmailVerificationService $emailVerificationService
+        ResendVerificationEmailService $emailVerificationService
     ) {
         $this->authService = $authService;
+        $this->emailVerificationService = $emailVerificationService;
     }
 
     // login user
