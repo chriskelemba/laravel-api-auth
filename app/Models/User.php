@@ -29,6 +29,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'blocked',
     ];
 
+    protected $guard_name = ['api', 'web'];
+
     /**
      * The attributes that should be hidden for serialization.
      *

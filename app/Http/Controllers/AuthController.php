@@ -53,12 +53,18 @@ class AuthController extends Controller
     {
         $userIdentifier = $request->input('email');
         $user = User::where('email', $userIdentifier)->first();
-    
+
         if (!$user) {
             return response()->json(['success' => false, 'message' => 'User not found'], 404);
         }
-    
+
         $response = $this->emailVerificationService->execute($user);
         return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
+    }
+
+    public function user(Request $request)
+    {
+        $user = $this->authService->user();
+        return ApiResponseClass::sendResponse(new AuthResource($user), 'User fetched successfully', 200);
     }
 }

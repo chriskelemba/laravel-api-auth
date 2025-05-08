@@ -2,17 +2,18 @@
 
 namespace App\Services\Auth;
 
-use App\Events\UserLoginFailed;
-use App\Exceptions\Custom\EmailAlreadyVerifiedException;
-use App\Exceptions\Custom\UserAuthenticationException;
-use App\Exceptions\Custom\UserAuthorizationException;
-use App\Interfaces\AuthRepositoryInterface;
-use App\Interfaces\EmailRepositoryInterface;
-use App\Mail\SecurityTeamAlert;
-use App\Mail\UserBlockedNotification;
-use App\Models\User;
 use Auth;
 use Mail;
+use App\Models\User;
+use App\Events\UserLoginFailed;
+use App\Mail\SecurityTeamAlert;
+use App\Mail\UserBlockedNotification;
+use App\Interfaces\AuthRepositoryInterface;
+use App\Interfaces\EmailRepositoryInterface;
+use App\Exceptions\Custom\EmailNotVerifiedException;
+use App\Exceptions\Custom\UserAuthorizationException;
+use App\Exceptions\Custom\UserAuthenticationException;
+use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 
 class AuthService
 {
@@ -82,6 +83,10 @@ class AuthService
             'blocked' => 'N'
         ]);
 
+        if (!$user->hasVerifiedEmail()) {
+            throw new EmailNotVerifiedException("Please verify your email address.");
+        }
+
         $token = $this->authRepository->generateToken($user);
 
         return [
@@ -105,5 +110,16 @@ class AuthService
         }
 
         return $this->emailRepository->resendVerificationEmail($user);
+    }
+
+    public function user()
+    {
+        $user = $this->authRepository->user();
+
+        if (!$user) {
+            throw new \Exception('No authenticated user');
+        }
+
+        return $user;
     }
 }

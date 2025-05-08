@@ -81,4 +81,8 @@ class AuthRepository implements AuthRepositoryInterface
         return Str::random(60);
     }
 
+    public function user()
+    {
+        return Auth::user();
+    }
 }
