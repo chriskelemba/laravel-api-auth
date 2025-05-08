@@ -3,6 +3,8 @@
 namespace App\Exceptions\Custom;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\QueryExceptionAlert;
 
 class DatabaseQueryException extends BaseCustomException
 {
@@ -11,6 +13,11 @@ class DatabaseQueryException extends BaseCustomException
     public function render($request)
     {
         Log::error('Database query error: ' . $this->getMessage());
+
+        // Notification::sendQueryExceptionAlert($this, $request->fullUrl(), $request->all());
+        Notification::route('mail', 'clxshy@gmail.com')->notify(
+            new QueryExceptionAlert($this, $request->fullUrl(), $request->all())
+        );        
         
         return response()->json([
             'success' => false,

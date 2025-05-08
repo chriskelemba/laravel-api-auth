@@ -47,7 +47,11 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 Route::middleware('auth:sanctum')->group(function () {
 
     // Users
+<<<<<<< Updated upstream
     Route::apiResource('/users', UserController::class);
+=======
+    Route::apiResource('/users', UserController::class)->middleware('role:user');
+>>>>>>> Stashed changes
 
     // Roles
     Route::apiResource('/roles', RoleController::class);
