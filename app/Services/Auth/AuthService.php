@@ -106,4 +106,15 @@ class AuthService
 
         return $this->emailRepository->resendVerificationEmail($user);
     }
+
+    public function user()
+    {
+        $user = $this->authRepository->user();
+
+        if (!$user) {
+            throw new \Exception('No authenticated user');
+        }
+
+        return $user;
+    }
 }
