@@ -15,4 +15,5 @@ interface AuthRepositoryInterface
     public function verifyEmail(User $user);
     // public function generateEmailVerificationToken(User $user);
     public function generateEmailVerificationToken();
+    public function user();
 }
