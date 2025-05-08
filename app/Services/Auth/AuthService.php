@@ -5,6 +5,7 @@ namespace App\Services\Auth;
 use App\Events\UserLoginFailed;
 use App\Exceptions\Custom\EmailAlreadyVerifiedException;
 use App\Exceptions\Custom\UserAuthenticationException;
+use App\Exceptions\Custom\UserAuthorizationException;
 use App\Interfaces\AuthRepositoryInterface;
 use App\Interfaces\EmailRepositoryInterface;
 use App\Mail\SecurityTeamAlert;
@@ -52,7 +53,7 @@ class AuthService
 
         // Immediately check if user exists and is blocked
         if ($user && $user->blocked === 'Y') {
-            throw new UserAuthenticationException('Account is blocked. Please contact admin.');
+            throw new UserAuthorizationException('Account is blocked. Please contact admin.');
         }
 
         // Verify credentials
@@ -65,7 +66,6 @@ class AuthService
 
                     if ($user->login_attempts >= 5) {
                         $user->update(['blocked' => 'Y']);
-                        \Log::info('User blocked: ' . $user->id);
 
                         // Send notifications
                         Mail::to($user->email)->queue(new UserBlockedNotification($user));
