@@ -9,10 +9,9 @@ use App\Services\Auth\AuthService;
 use App\Http\Resources\AuthResource;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\AuthResponseResource;
-use App\Services\Auth\EmailVerificationService;
 use App\Services\Auth\ResendVerificationEmailService;
-use App\Exceptions\Custom\EmailAlreadyVerifiedException;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
 class AuthController extends Controller
 {

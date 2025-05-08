@@ -14,7 +14,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 |--------------------------------------------------------------------------
 */
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login')->middleware('not_blocked');
 Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum', 'last_used_at']);
 
 /*
@@ -47,7 +47,7 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 Route::middleware('auth:sanctum')->group(function () {
 
     // Users
-    Route::apiResource('/users', UserController::class);
+    Route::apiResource('/users', UserController::class)->middleware('role:admin');
 
     // Roles
     Route::apiResource('/roles', RoleController::class);
