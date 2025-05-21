@@ -35,7 +35,7 @@ class PasswordResetController extends Controller implements HasMiddleware
     {
         $response = $this->forgotPasswordService->execute($request->email);
 
-        return ApiResponseClass::sendResponse($response['message'], $response['data'] ?? [], $response['status']);
+        return sendApiResponse($response['message'], $response['data'] ?? [], $response['status']);
     }
 
     public function resetPassword(ResetPasswordRequest $request)
@@ -45,7 +45,7 @@ class PasswordResetController extends Controller implements HasMiddleware
             $request->password
         );
 
-        return ApiResponseClass::sendResponse($response['message'], $response['data'] ?? [], $response['status']);
+        return sendApiResponse($response['message'], $response['data'] ?? [], $response['status']);
     }
 
     public function showResetForm(Request $request)
