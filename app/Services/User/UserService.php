@@ -18,14 +18,14 @@ class UserService
 
     /**
      * Get all users
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Collection
      * @throws NotFoundException
      */
     public function getAllUsers()
     {
         // $users = User::all();
-        $users = DB::table('userss')->get();
+        $users = DB::table('users')->get();
 
         if ($users->isEmpty()) {
             throw new NotFoundException('Users');
@@ -36,7 +36,7 @@ class UserService
 
     /**
      * Get user by ID
-     * 
+     *
      * @param int $id
      * @return User
      * @throws NotFoundException
@@ -54,7 +54,7 @@ class UserService
 
     /**
      * Update user
-     * 
+     *
      * @param int $id
      * @param array $data
      * @return User
@@ -71,7 +71,7 @@ class UserService
 
     /**
      * Delete user
-     * 
+     *
      * @param int $id
      * @return void
      */
@@ -82,7 +82,7 @@ class UserService
 
     /**
      * Reset user password
-     * 
+     *
      * @param int $id
      * @param string $oldPassword
      * @param string $newPassword

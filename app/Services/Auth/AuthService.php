@@ -2,10 +2,10 @@
 
 namespace App\Services\Auth;
 
+use App\Exceptions\Custom\UnauthenticatedException;
 use Auth;
 use Mail;
 use App\Models\User;
-use App\Events\UserLoginFailed;
 use App\Mail\SecurityTeamAlert;
 use App\Mail\UserBlockedNotification;
 use App\Interfaces\AuthRepositoryInterface;
@@ -117,7 +117,7 @@ class AuthService
         $user = $this->authRepository->user();
 
         if (!$user) {
-            throw new \Exception('No authenticated user');
+            throw new UnauthenticatedException('No authenticated user');
         }
 
         return $user;

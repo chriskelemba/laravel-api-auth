@@ -4,15 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Class\ApiResponseClass;
 use App\Services\Auth\AuthService;
 use App\Http\Resources\AuthResource;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\Auth\ResendVerificationEmailService;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-
 class AuthController extends Controller
 {
     private $authService;
@@ -31,7 +27,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $response = $this->authService->login($request->only(['email', 'password']));
-        return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']),'token' => $response['token'],], 'Login Successful', 200);
+        return sendApiResponse(['user' => new AuthResource($response['user']), 'token' => $response['token'],], 'Login Successful', 200);
     }
 
 
@@ -39,14 +35,14 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         $response = $this->authService->register($request->only(['name', 'email', 'password']));
-        return ApiResponseClass::sendResponse(['user' => new AuthResource($response['user']), 'token' => $response['token'],], 'User registered successfully', 200);
+        return sendApiResponse(['user' => new AuthResource($response['user']), 'token' => $response['token'],], 'User registered successfully', 200);
     }
 
     // logout user
     public function logout()
     {
         $this->authService->logout();
-        return ApiResponseClass::sendResponse('Logout Successful', '', 200);
+        return sendApiResponse('Logout Successful', '', 200);
     }
 
     public function resendVerificationEmail(Request $request)
@@ -59,12 +55,12 @@ class AuthController extends Controller
         }
 
         $response = $this->emailVerificationService->execute($user);
-        return ApiResponseClass::sendResponse(null, $response['message'], $response['status']);
+        return sendApiResponse(null, $response['message'], $response['status']);
     }
 
     public function user(Request $request)
     {
         $user = $this->authService->user();
-        return ApiResponseClass::sendResponse(new AuthResource($user), 'User fetched successfully', 200);
+        return sendApiResponse(new AuthResource($user), 'User fetched successfully', 200);
     }
 }
